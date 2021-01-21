@@ -7,8 +7,11 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,8 +24,9 @@ import com.google.cloud.translate.Translation;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class textActivity extends AppCompatActivity {
+public class textActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
+    String text;
     private EditText inputToTranslate;
     private TextView translatedTv;
     private String originalText;
@@ -35,7 +39,11 @@ public class textActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text);
 
-
+        Spinner spinner1 = findViewById(R.id.targetLangSelector);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.languages, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner1.setAdapter(adapter);
+        spinner1.setOnItemSelectedListener(this);
         Button button = findViewById(R.id.secondActivitytoMain);
         button.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);
@@ -90,7 +98,7 @@ public class textActivity extends AppCompatActivity {
 
         //Get input text to be translated:
         originalText = inputToTranslate.getText().toString();
-        Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage("tr"),Translate.TranslateOption.model("base"));
+        Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(text),Translate.TranslateOption.model("base"));
         translatedText = translation.getTranslatedText();
 
         //Translated text and original text are set to TextViews:
@@ -108,5 +116,15 @@ public class textActivity extends AppCompatActivity {
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
 
         return connected;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        this.text = parent.getItemAtPosition(position).toString();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
